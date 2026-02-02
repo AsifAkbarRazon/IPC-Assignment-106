@@ -7,7 +7,7 @@
 
 #include "darknet.h"
 
-/* ---------- SHARED MEMORY DEFINITIONS ---------- */
+
 
 #define SHM_NAME   "/yolo_ipc_shm"
 #define MAX_BOXES  10
@@ -15,7 +15,7 @@
 typedef struct {
     int class_id;
     float confidence;
-    int x, y, w, h;   // pixel coordinates
+    int x, y, w, h;   
 } Detection;
 
 typedef struct {
@@ -23,7 +23,7 @@ typedef struct {
     Detection det[MAX_BOXES];
 } SharedData;
 
-/* ------------------------------------------------ */
+
 
 int main(int argc, char **argv)
 {
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
     char *image_path = argv[1];
 
-    /* ---------- CREATE SHARED MEMORY ---------- */
+    
 
     int shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
     if (shm_fd < 0) {
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     memset(shared, 0, sizeof(SharedData));
 
-    /* ---------- LOAD YOLO NETWORK ---------- */
+    
 
     network *net = load_network(
         "yolov4-tiny.cfg",
@@ -70,11 +70,11 @@ int main(int argc, char **argv)
 
     set_batch_network(net, 1);
 
-    /* ---------- LOAD IMAGE ---------- */
+    
 
     image im = load_image_color(image_path, 0, 0);
 
-    /* ---------- RUN INFERENCE ---------- */
+    
 
     network_predict_image(net, im);
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     0,          // map
     1,          // relative
     &nboxes,
-    0           // letterbox (IMPORTANT FIX)
+    0           // letterbox 
     );
 
 
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
         0.45
     );
 
-    /* ---------- WRITE RESULTS TO SHARED MEMORY ---------- */
+  
 
     shared->count = 0;
 
@@ -131,12 +131,12 @@ int main(int argc, char **argv)
         }
     }
 
-    /* ---------- CLEANUP ---------- */
+  
 
     free_detections(dets, nboxes);
     free_image(im);
 
-    // keep shared memory alive for Python
+    
     printf("Detections written to shared memory. Count = %d\n", shared->count);
 
     return 0;
