@@ -3,7 +3,7 @@ import ctypes
 import cv2
 import os
 
-# ---------- MUST MATCH C CODE ----------
+
 SHM_NAME = "/yolo_ipc_shm"
 MAX_BOXES = 10
 
@@ -22,12 +22,12 @@ class SharedData(ctypes.Structure):
         ("count", ctypes.c_int),
         ("det", Detection * MAX_BOXES),
     ]
-# --------------------------------------
+
 
 def main():
-    image_path = "test-image.jpg"   # SAME image used in C
+    image_path = "test-image.jpg"   
 
-    # ---------- OPEN SHARED MEMORY ----------
+    
     fd = os.open("/dev/shm" + SHM_NAME, os.O_RDONLY)
 
     shm = mmap.mmap(
@@ -42,13 +42,13 @@ def main():
 
     print("Detections read from shared memory:", shared.count)
 
-    # ---------- LOAD IMAGE ----------
+   
     img = cv2.imread(image_path)
     if img is None:
         print("Failed to load image")
         return
 
-    # ---------- DRAW BOXES ----------
+    
     for i in range(shared.count):
         d = shared.det[i]
 
@@ -74,7 +74,7 @@ def main():
             2
         )
 
-    # ---------- SHOW RESULT ----------
+    
     cv2.imwrite("ipc_output.jpg", img)
     print("Output saved as ipc_output.jpg")
 
